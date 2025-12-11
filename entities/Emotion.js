@@ -3,11 +3,14 @@ class Emotion extends Vehicle {
     super(x, y);
     this.type = type;
 
-    this.color = {
-      "Fear": color(150, 150, 255),
-      "Anxiety": color(255, 100, 100),
-      "Doubt": color(180, 100, 255)
-    }[type];
+    const EMOTION_COLORS = {
+    "Fear": color(0, 100, 255),       // dark blue
+    "Anxiety": color(200, 30, 30),    // deep red
+    "Doubt": color(120, 0, 120)       // dark purple
+  };
+
+  // In Emotion class
+  this.color = EMOTION_COLORS[type];
   }
 
   behave(zones, emotions) {

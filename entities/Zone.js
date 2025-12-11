@@ -3,7 +3,7 @@ class Zone {
     this.pos = createVector(x, y);
     this.r = 70;
     this.name = name;
-    this.health = 100; // %
+    this.health = 100;
   }
 
   show() {

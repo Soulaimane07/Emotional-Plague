@@ -6,7 +6,6 @@ class Vehicle {
 
     this.maxSpeed = 2;
     this.maxForce = 0.1;
-
     this.r = 12;
   }
 
@@ -17,7 +16,6 @@ class Vehicle {
   seek(target) {
     let desired = p5.Vector.sub(target, this.pos);
     desired.setMag(this.maxSpeed);
-
     let steer = p5.Vector.sub(desired, this.vel);
     steer.limit(this.maxForce);
     return steer;
@@ -83,11 +81,9 @@ class Vehicle {
     push();
     translate(this.pos.x, this.pos.y);
     rotate(this.vel.heading());
-
     fill(col);
     stroke(255);
     strokeWeight(1);
-
     triangle(-this.r, -this.r / 2, -this.r, this.r / 2, this.r, 0);
     pop();
   }
