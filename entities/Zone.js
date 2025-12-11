@@ -1,20 +1,26 @@
 class Zone {
-  constructor(x, y, label) {
+  constructor(x, y, name) {
     this.pos = createVector(x, y);
-    this.label = label;
-    this.r = 50;
+    this.r = 70;
+    this.name = name;
+    this.health = 100; // %
   }
 
   show() {
     push();
     noFill();
-    stroke('yellow');
+    stroke(255, 200, 0);
     strokeWeight(2);
     circle(this.pos.x, this.pos.y, this.r * 2);
-    fill('yellow');
+
+    fill(255);
     noStroke();
     textAlign(CENTER, CENTER);
-    text(this.label, this.pos.x, this.pos.y);
+    textSize(18);
+    text(this.name, this.pos.x, this.pos.y - 35);
+
+    textSize(14);
+    text("Health: " + floor(this.health) + "%", this.pos.x, this.pos.y + 10);
     pop();
   }
 }
