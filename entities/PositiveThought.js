@@ -1,67 +1,77 @@
+// Classe représentant une pensée positive qui protège les zones et fuit le danger
 class PositiveThought extends Vehicle {
   constructor(x, y) {
-    super(x, y);
-    this.color = color(0, 255, 100);
-    this.r = 15;
+    super(x, y);                       // Hérite de Vehicle pour gérer position, vitesse, accélération
+    this.color = color(0, 255, 100);   // Couleur verte symbolisant la positivité
+    this.r = 15;                        // Rayon de la pensée
   }
 
-  behave(emotions, serpents) {
-    let nearestEmotion = null;
-    let minDist = Infinity;
+  // Comportement de la pensée : fuir serpents et chercher zones sûres
+  behave(emotions, serpents = [], zones = []) {
+    let force = createVector(); // vecteur de force total à appliquer
 
-    // Seek / fight emotions
-    for (let e of emotions) {
-      let d = p5.Vector.dist(this.pos, e.pos);
+    // Trouver le serpent le plus proche
+    let nearestSerpent = null;
+    let minDist = Infinity;
+    for (let s of serpents) {
+      let d = p5.Vector.dist(this.pos, s.segments[0]); // distance tête-serpent
       if (d < minDist) { 
         minDist = d; 
-        nearestEmotion = e; 
+        nearestSerpent = s; 
       }
     }
 
-    if (nearestEmotion) {
-      let future = p5.Vector.add(nearestEmotion.pos, nearestEmotion.vel.copy().mult(10));
-      let arriveForce = this.arrive(future);
-      this.applyForce(arriveForce);
+    // Si un serpent est proche, fuir et chercher une zone sûre
+    if (nearestSerpent && minDist < 150) {
+      // Force de fuite du serpent
+      let fleeForce = p5.Vector.sub(this.pos, nearestSerpent.segments[0]);
+      fleeForce.setMag(this.maxForce * 2); // fuir plus vite que la force maximale normale
+      force.add(fleeForce);
 
-      if (minDist < this.r + 12) {
-        nearestEmotion.damageDone = max(0, (nearestEmotion.damageDone || 0) - 0.2);
-        let push = p5.Vector.sub(nearestEmotion.pos, this.pos).setMag(0.5);
-        nearestEmotion.applyForce(push);
-      }
-    }
-
-    // Flee serpents
-    if (serpents) {
-      for (let s of serpents) {
-        let d = p5.Vector.dist(this.pos, s.segments[0]);
-        if (d < 150) { // flee radius
-          let fleeForce = p5.Vector.sub(this.pos, s.segments[0]);
-          fleeForce.setMag(this.maxForce * 2);
-          this.applyForce(fleeForce);
+      // Chercher la zone la plus proche
+      let nearestZone = null;
+      let zoneDist = Infinity;
+      for (let z of zones) {
+        let d = p5.Vector.dist(this.pos, z.pos);
+        if (d < zoneDist) { 
+          zoneDist = d; 
+          nearestZone = z; 
         }
       }
+
+      // Arriver doucement à la zone (arrive)
+      if (nearestZone) {
+        let seekForce = this.arrive(nearestZone.pos);
+        seekForce.setMag(this.maxForce);
+        force.add(seekForce);
+      }
     }
+
+    // Appliquer toutes les forces calculées
+    this.applyForce(force);
   }
 
+  // Méthode d'approche douce vers une cible (arrive)
   arrive(target) {
-    let desired = p5.Vector.sub(target, this.pos);
-    let d = desired.mag();
+    let desired = p5.Vector.sub(target, this.pos); // vecteur vers la cible
+    let d = desired.mag();                         // distance à la cible
     let speed = this.maxSpeed;
-    if (d < 100) speed = map(d, 0, 100, 0, this.maxSpeed);
-    desired.setMag(speed);
-    let steer = p5.Vector.sub(desired, this.vel);
-    steer.limit(this.maxForce);
+    if (d < 100) speed = map(d, 0, 100, 0, this.maxSpeed); // ralentir en approchant
+    desired.setMag(speed);                          // ajuster la vitesse désirée
+    let steer = p5.Vector.sub(desired, this.vel);  // calcul du vecteur de steering
+    steer.limit(this.maxForce);                     // limiter la force
     return steer;
   }
 
+  // Affichage graphique de la pensée positive
   show() {
     push();
-    translate(this.pos.x, this.pos.y);
-    rotate(this.vel.heading());
-    fill(this.color);
-    stroke(255);
+    translate(this.pos.x, this.pos.y); // déplacer au centre de la pensée
+    rotate(this.vel.heading());         // orienter selon la direction du mouvement
+    fill(this.color);                  // couleur verte
+    stroke(255);                       // contour blanc
     strokeWeight(1);
-    ellipse(0, 0, this.r * 2);
+    ellipse(0, 0, this.r * 2);         // dessiner un cercle représentant la pensée
     pop();
   }
 }

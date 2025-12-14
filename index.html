@@ -3,19 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mind Defense Game</title>
+  <title>🧠 Mental Defense Game 🧠</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- Welcome Page -->
   <div id="welcome-screen">
-    <h1>🧠 Mind Defense Game 🧠</h1>
-    <p>
-      Welcome! In this game, your brain has zones like Memory, Calm, and Motivation.  
-      Toxic emotions (Fear, Anxiety, Doubt) and Depression (Serpent) will attack your zones.  
-      Your goal is to protect the zones with positive thoughts and survive as long as possible!
-    </p>
-    <button id="start-button">Start Game</button>
+    <canvas id="bg-canvas"></canvas>
+    <div id="welcome-content">
+      <h1>🧠 Mental Defense 🧠</h1>
+      <p>
+        Bienvenue !<br>
+        Votre cerveau est divisé en zones : <strong>Mémoire</strong>, <strong>Calme</strong> et <strong>Motivation</strong>.<br>  
+        Les émotions toxiques, la dépression (serpent) attaqueront vos zones.<br>
+        Protégez-les avec des pensées positives et survivez le plus longtemps possible !
+      </p>
+      <button id="start-button">Démarrer la partie</button>
+    </div>
   </div>
 
   <!-- Game Canvas -->
@@ -38,8 +42,41 @@
     startButton.addEventListener('click', () => {
       welcomeScreen.style.display = 'none';
       gameContainer.style.display = 'block';
-      // The sketch.js setup() will run automatically after script loads
     });
+
+    // Animated particle background
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+    for (let i = 0; i < 100; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.5
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#00ffcc';
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
   </script>
 </body>
 </html>
