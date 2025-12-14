@@ -4,6 +4,10 @@
 let zones = [];
 let emotions = [];
 let positives = [];
+let serpents = [];
+let score = 0;
+let player;
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -12,16 +16,29 @@ function setup() {
   zones.push(new Zone(800, 600, "Calm"));
   zones.push(new Zone(1200, 400, "Motivation"));
 
-  for (let i = 0; i < 10; i++)
+  for (let i = 0; i < 5; i++)
     emotions.push(new Emotion(random(width), random(height), "Fear"));
-  for (let i = 0; i < 10; i++)
+  for (let i = 0; i < 5; i++)
     emotions.push(new Emotion(random(width), random(height), "Anxiety"));
-  for (let i = 0; i < 10; i++)
+  for (let i = 0; i < 5; i++)
     emotions.push(new Emotion(random(width), random(height), "Doubt"));
 
   for (let z of zones) {
-    positives.push(new PositiveThought(z.pos.x + random(-100,100), z.pos.y + random(-100,100), z));
+    for (let i = 0; i < 10; i++) {
+      positives.push(new PositiveThought(
+        z.pos.x + random(-100, 100), 
+        z.pos.y + random(-100, 100), 
+        z
+      ));
+    }
   }
+
+
+  serpents.push(new Serpent(width/2, height/2 - 100));
+
+  playerPositive = new PositiveThought(width/2, height - 100);
+
+  player = new Player(width / 2, height / 2);
 }
 
 function draw() {
@@ -46,17 +63,44 @@ function draw() {
     }
     if (minDist < nearest.r) {
       nearest.health = max(0, nearest.health - 0.05);
+      nearest.registerAttack(); // 👈 KEY LINE
       e.damageDone = (e.damageDone || 0) + 0.05;
     }
+
   });
+
+  for (let z of zones) {
+    z.heal();
+  }
+
 
 
   positives.forEach(p => {
-    p.behave(emotions);
+    p.behave(emotions, serpents);
     p.update();
     p.edges();
     p.show();
   });
+
+
+  // handle serpents
+  for (let s of serpents) {
+    s.behave(positives);
+    s.update();
+    s.edges();
+    s.eat(positives);
+    s.show();
+  }
+
+  // Player control (choose ONE)
+  player.moveMouse(mouseX, mouseY);
+  // player.moveKeyboard();
+
+  player.update();
+  player.pushEmotions(emotions);
+  player.boostPositives(positives);
+  player.show();
+
 
 }
 
@@ -118,5 +162,36 @@ function drawHUD(zones, emotions) {
     text(type + ": " + floor(emotionDominance[type]) + "%", 20, y);
     y += 20;
   }
+
+  fill(255, 255, 0);
+  textSize(20);
+  textAlign(RIGHT, TOP);
+  text("Score: " + score, width - 20, 20);
+
   pop();
+
+  
+
+
+  playerPositive.pos.x = mouseX;
+  playerPositive.pos.y = mouseY;
+  playerPositive.show();
+
+  // Make it protect nearby positives
+  for (let p of positives) {
+    let d = p5.Vector.dist(playerPositive.pos, p.pos);
+    if (d < 80) {
+      let pushForce = p5.Vector.sub(p.pos, playerPositive.pos).setMag(0.5);
+      p.applyForce(pushForce); // push nearby positives toward safety
+    }
+  }
+
+  // Check end game
+    if (floor(totalHealth) <= 0) {
+      noLoop();
+      fill(255, 0, 0);
+      textAlign(CENTER, CENTER);
+      textSize(64);
+      text("💀 Game Over 💀", width/2, height/2);
+    }
 }

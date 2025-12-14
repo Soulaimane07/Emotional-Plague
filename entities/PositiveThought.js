@@ -1,32 +1,44 @@
 class PositiveThought extends Vehicle {
   constructor(x, y) {
     super(x, y);
-    this.color = color(0, 255, 100); // greenish protective
+    this.color = color(0, 255, 100);
     this.r = 15;
   }
 
-  behave(emotions) {
-    let nearest = null;
+  behave(emotions, serpents) {
+    let nearestEmotion = null;
     let minDist = Infinity;
 
-    // Find nearest toxic emotion
+    // Seek / fight emotions
     for (let e of emotions) {
       let d = p5.Vector.dist(this.pos, e.pos);
-      if (d < minDist) { minDist = d; nearest = e; }
+      if (d < minDist) { 
+        minDist = d; 
+        nearestEmotion = e; 
+      }
     }
 
-    if (nearest) {
-      // Pursuit: target predicted position
-      let future = p5.Vector.add(nearest.pos, nearest.vel.copy().mult(10));
+    if (nearestEmotion) {
+      let future = p5.Vector.add(nearestEmotion.pos, nearestEmotion.vel.copy().mult(10));
       let arriveForce = this.arrive(future);
       this.applyForce(arriveForce);
 
-      // Reduce emotion damage if reached
-      if (minDist < this.r + 12) { // 12 = emotion radius
-        nearest.damageDone = max(0, (nearest.damageDone || 0) - 0.2);
-        // Push emotion away slightly
-        let push = p5.Vector.sub(nearest.pos, this.pos).setMag(0.5);
-        nearest.applyForce(push);
+      if (minDist < this.r + 12) {
+        nearestEmotion.damageDone = max(0, (nearestEmotion.damageDone || 0) - 0.2);
+        let push = p5.Vector.sub(nearestEmotion.pos, this.pos).setMag(0.5);
+        nearestEmotion.applyForce(push);
+      }
+    }
+
+    // Flee serpents
+    if (serpents) {
+      for (let s of serpents) {
+        let d = p5.Vector.dist(this.pos, s.segments[0]);
+        if (d < 150) { // flee radius
+          let fleeForce = p5.Vector.sub(this.pos, s.segments[0]);
+          fleeForce.setMag(this.maxForce * 2);
+          this.applyForce(fleeForce);
+        }
       }
     }
   }
@@ -49,7 +61,7 @@ class PositiveThought extends Vehicle {
     fill(this.color);
     stroke(255);
     strokeWeight(1);
-    ellipse(0, 0, this.r * 2); // ellipse shape for positives
+    ellipse(0, 0, this.r * 2);
     pop();
   }
 }

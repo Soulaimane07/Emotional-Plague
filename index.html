@@ -3,14 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emotional Plague</title>
+  <title>Mind Defense Game</title>
   <link rel="stylesheet" href="style.css">
-  <script src="libraries/p5.min.js"></script>
-  <script src="sketch.js"></script>
-  <script src="./entities/Zone.js"></script>
-  <script src="./entities/Vehicle.js"></script>
-  <script src="./entities/Emotion.js"></script>
-  <script src="./entities/PositiveThought.js"></script>
 </head>
-<body></body>
+<body>
+  <!-- Welcome Page -->
+  <div id="welcome-screen">
+    <h1>🧠 Mind Defense Game 🧠</h1>
+    <p>
+      Welcome! In this game, your brain has zones like Memory, Calm, and Motivation.  
+      Toxic emotions (Fear, Anxiety, Doubt) and Depression (Serpent) will attack your zones.  
+      Your goal is to protect the zones with positive thoughts and survive as long as possible!
+    </p>
+    <button id="start-button">Start Game</button>
+  </div>
+
+  <!-- Game Canvas -->
+  <div id="game-container" style="display:none;">
+    <script src="libraries/p5.min.js"></script>
+    <script src="sketch.js"></script>
+    <script src="./entities/Zone.js"></script>
+    <script src="./entities/Vehicle.js"></script>
+    <script src="./entities/Emotion.js"></script>
+    <script src="./entities/PositiveThought.js"></script>
+    <script src="./entities/Serpent.js"></script>
+    <script src="./entities/Player.js"></script>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('start-button');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const gameContainer = document.getElementById('game-container');
+
+    startButton.addEventListener('click', () => {
+      welcomeScreen.style.display = 'none';
+      gameContainer.style.display = 'block';
+      // The sketch.js setup() will run automatically after script loads
+    });
+  </script>
+</body>
 </html>
